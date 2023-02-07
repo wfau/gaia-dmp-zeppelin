@@ -248,8 +248,8 @@ body .navbar {
 .nav-login-btn:hover,
 .nav-login-btn:focus {
   color: #fff;
-  background-color: #428bca;
-  border-color: #357ebd;
+  background-color: #bd8293;
+  border-color: #fff;
 }
 
 .server-connected {
@@ -303,17 +303,11 @@ body .navbar {
 }
 
 .zeppelin {
-  background: url('../assets/images/zepLogo.png') no-repeat right;
+  background: url('../assets/images/gaia_RGB_transparent_gif.gif') no-repeat right;
   height: 380px;
   opacity: 0.2;
 }
 
-.zeppelin2 {
-  background: url('../assets/images/zepLogo.png') no-repeat right;
-  background-position-y: 12px;
-  height: 380px;
-  opacity: 0.2;
-}
 
 .keys {
   padding-right: 10px;
@@ -697,5 +691,5 @@ This part should be removed when new version of bootstrap handles this issue.
 }
 
 .bootstrap-dialog.type-primary .modal-header {
-  background: #3071a9;
+  background: #9f0331;
 }

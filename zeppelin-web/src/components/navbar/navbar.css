@@ -84,9 +84,9 @@
 .navbar-fixed-top.headroom--pinned { top: 0; /** `navbar` top */ }
 
 .navbar-inverse {
-  background: #3071a9;
+  background: #9f0331;
   color: #fff;
-  border-color: #3071a9;
+  border-color: #ffffff;
   font-size: 18px;
 }
 
@@ -94,12 +94,12 @@
 .navbar-inverse .navbar-nav > .open > a:hover,
 .navbar-inverse .navbar-nav > .open > a:focus {
   color: #fff;
-  background: #3071a9;
+  background: #760325;
 }
 
 .navbar-inverse .navbar-toggle:hover,
 .navbar-inverse .navbar-toggle:focus {
-  background: #3071a9;
+  background: #760325;
 }
 
 .navbar-inverse .navbar-nav > li > a:hover,
@@ -165,11 +165,11 @@ a.navbar-brand:hover {
   }
 
   .navbar-inverse .navbar-nav .open .dropdown-menu .divider {
-    background: #3071A9;
+    background: #9f0331;
   }
 
   .navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
-    border-color: #3071A9;
+    border-color: #9f0331;
   }
 }
 
@@ -186,8 +186,8 @@ a.navbar-brand:hover {
 /* About Dialog */
 
 .modal-header-about {
-  background-color: #3071a9;
-  border: 2px solid #3071a9;
+  background-color: #9f0331;
+  border: 2px solid #9f0331;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
 }
@@ -226,7 +226,7 @@ a.navbar-brand:hover {
 
 .modal-body-about .content h3 {
   font-family: 'Patua One';
-  color: #3071A9;
+  color: #9f0331;
   font-size: 30px;
   margin: 0 auto;
 }
