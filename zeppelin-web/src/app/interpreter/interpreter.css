@@ -53,7 +53,7 @@
 .interpreter .interpreter-title {
   font-size: 20px;
   font-weight: bold;
-  color: #3071a9;
+  color: #9f0331;
   float: left;
   margin-top: 0;
 }
@@ -125,7 +125,7 @@
 }
 
 .interpreter-binding-mode-info-link {
-  color: #3071a9;
+  color: #9f0331;
   vertical-align: middle;
   margin-left: 2px;
   text-decoration: none !important;

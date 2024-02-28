@@ -50,7 +50,7 @@
 .heliumPackageList .heliumPackageName {
   font-size: 20px;
   font-weight: bold;
-  color: #3071a9;
+  color: #9f0331;
   float: left;
   margin-top: 0;
 }
@@ -100,7 +100,7 @@
   margin-left:3px;
   cursor:pointer;
   text-decoration:
-  underline;color:#3071a9
+  underline;color:#9f0331;
 }
 
 .heliumPackageList .heliumPackageDescription {
@@ -136,7 +136,7 @@
   margin-top:5px;
   cursor:pointer;
   text-decoration:
-  underline;color:#3071a9;
+  underline;color:#9f0331;
   display: inline-block;
 }
 
