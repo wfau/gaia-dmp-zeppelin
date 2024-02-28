@@ -21,14 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -80,7 +79,6 @@ class K8sRemoteInterpreterProcessTest {
     assertEquals("12321:12321", intp.getInterpreterPortRange());
     assertEquals(22321, intp.getSparkDriverPort());
     assertEquals(22322, intp.getSparkBlockManagerPort());
-    intp.close();
   }
 
   @Test
@@ -132,7 +130,6 @@ class K8sRemoteInterpreterProcessTest {
     envs = (HashMap<String, String>) p.get("zeppelin.k8s.envs");
     assertTrue(envs.containsKey("SERVICE_DOMAIN"));
     assertTrue(envs.containsKey("ZEPPELIN_HOME"));
-    intp.close();
   }
 
   @Test
@@ -192,7 +189,6 @@ class K8sRemoteInterpreterProcessTest {
     assertTrue(zeppelinSparkConf.contains("spark.jars.ivy=my_ivy_path"));
     assertFalse(zeppelinSparkConf.contains("--proxy-user"));
     assertTrue(intp.isSpark());
-    intp.close();
   }
 
   @Test
@@ -246,7 +242,6 @@ class K8sRemoteInterpreterProcessTest {
     assertTrue(zeppelinSparkConf.contains("spark.blockManager.port=" + intp.getSparkBlockManagerPort()));
     assertTrue(zeppelinSparkConf.contains("--proxy-user|mytestUser"));
     assertTrue(intp.isSpark());
-    intp.close();
   }
 
   @Test
@@ -291,7 +286,6 @@ class K8sRemoteInterpreterProcessTest {
     String sparkSubmitOptions = envs.get("SPARK_SUBMIT_OPTIONS");
     assertFalse(sparkSubmitOptions.contains("--proxy-user"));
     assertTrue(intp.isSpark());
-    intp.close();
   }
 
   @Test
@@ -335,7 +329,6 @@ class K8sRemoteInterpreterProcessTest {
             4040,
             "zeppelin-server",
             "my.domain.com"));
-    intp.close();
   }
 
   @Test
@@ -372,7 +365,6 @@ class K8sRemoteInterpreterProcessTest {
     // then
     assertEquals("1", p.get("zeppelin.k8s.interpreter.cores"));
     assertEquals("1408Mi", p.get("zeppelin.k8s.interpreter.memory"));
-    intp.close();
   }
 
   @Test
@@ -483,14 +475,16 @@ class K8sRemoteInterpreterProcessTest {
     service
         .submit(podStatusSimulator);
     // should throw an IOException
-    IOException e = assertThrows(IOException.class, () -> {
+    try {
       intp.start("TestUser");
-    });
-    assertNotNull(e);
-    // Check that the Pod is deleted
-    assertNull(
+      fail("We excepting an IOException");
+    } catch (IOException e) {
+      assertNotNull(e);
+      // Check that the Pod is deleted
+      assertNull(
         client.pods().inNamespace(intp.getInterpreterNamespace()).withName(intp.getPodName())
               .get());
+    }
   }
 
   @Test
@@ -531,7 +525,9 @@ class K8sRemoteInterpreterProcessTest {
     service.submit(() -> {
       try {
         intp.start("TestUser");
+        fail("We interrupt, this line of code should not be executed.");
       } catch (IOException e) {
+        fail("We interrupt, this line of code should not be executed.");
       }
     });
     // wait a little bit
@@ -579,27 +575,34 @@ class K8sRemoteInterpreterProcessTest {
 
     @Override
     public void run() {
-      await().until(() -> client.pods().inNamespace(namespace).withName(podName).get() != null);
-      // Pod is present set first phase
-      Pod pod = client.pods().inNamespace(namespace).withName(podName).get();
-      pod.setStatus(new PodStatus(null, null, null, null, null, null, null, firstPhase,
-          null,
-          null, null, null, null));
-      client.pods().inNamespace(namespace).replaceStatus(pod);
-      await().pollDelay(Duration.ofMillis(200)).until(() -> firstPhase.equals(
-          client.pods().inNamespace(namespace).withName(podName).get().getStatus().getPhase()));
-      // Set second Phase
-      pod = client.pods().inNamespace(namespace).withName(podName).get();
-      pod.setStatus(new PodStatus(null, null, null, null, null, null, null, secondPhase,
-          null,
-          null, null, null, null));
-      client.pods().inNamespace(namespace).replaceStatus(pod);
-      await().pollDelay(Duration.ofMillis(200)).until(() -> secondPhase.equals(
-          client.pods().inNamespace(namespace).withName(podName).get().getStatus().getPhase()));
-      if (successfulStart) {
-        process.processStarted(12320, "testing");
+      try {
+        Instant timeoutTime = Instant.now().plusSeconds(10);
+        while (timeoutTime.isAfter(Instant.now())) {
+          Pod pod = client.pods().inNamespace(namespace).withName(podName).get();
+          if (pod != null) {
+            TimeUnit.SECONDS.sleep(1);
+            // Update Pod to "pending" phase
+            pod.setStatus(new PodStatus(null, null, null, null, null, null, null, firstPhase,
+                null,
+                null, null, null, null));
+            client.pods().inNamespace(namespace).updateStatus(pod);
+            // Update Pod to "Running" phase
+            pod.setStatus(new PodStatus(null, null, null, null, null, null, null, secondPhase,
+                null,
+                null, null, null, null));
+            client.pods().inNamespace(namespace).updateStatus(pod);
+            TimeUnit.SECONDS.sleep(1);
+            if (successfulStart) {
+              process.processStarted(12320, "testing");
+            }
+            break;
+          } else {
+            TimeUnit.MILLISECONDS.sleep(100);
+          }
+        }
+      } catch (InterruptedException e) {
+        // Do nothing
       }
     }
   }
-
 }
